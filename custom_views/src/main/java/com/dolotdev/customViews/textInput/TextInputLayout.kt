@@ -26,8 +26,11 @@ import androidx.core.widget.TextViewCompat
 import com.dolotdev.customViews.R
 import com.dolotdev.customViews.roundedView.RoundedView
 import com.dolotdev.customViews.textInput.action.TextEventListener
-import com.dolotdev.customViews.util.Bound
-import com.dolotdev.customViews.util.Size
+import com.dolotdev.utils.extension.isHeightWrapContent
+import com.dolotdev.utils.extension.layout
+import com.dolotdev.utils.extension.pxToSp
+import com.dolotdev.utils.view.Bound
+import com.dolotdev.utils.view.Size
 import kotlin.math.max
 import kotlin.math.min
 
@@ -1028,23 +1031,3 @@ class TextInputLayout @JvmOverloads constructor(
 		private val TAG: String = TextInputLayout::class.java.simpleName
 	}
 }
-
-fun pxToSp(context: Context, newSize: Float): Float {
-	return newSize / context.resources.displayMetrics.scaledDensity
-}
-
-fun View.layout(rect: Bound) {
-	this.layout(rect.left, rect.top, rect.right, rect.bottom)
-}
-
-fun View.isWidthWrapContent() =
-		ViewGroup.LayoutParams.WRAP_CONTENT == this.layoutParams.width
-
-fun View.isHeightWrapContent() =
-		ViewGroup.LayoutParams.WRAP_CONTENT == this.layoutParams.height
-
-fun View.isMeasureUnspecified(measureSpec: Int) =
-		View.MeasureSpec.UNSPECIFIED == View.MeasureSpec.getMode(measureSpec)
-
-fun View.hasExactMeasure(measureSpec: Int) =
-		View.MeasureSpec.EXACTLY == View.MeasureSpec.getMode(measureSpec)
