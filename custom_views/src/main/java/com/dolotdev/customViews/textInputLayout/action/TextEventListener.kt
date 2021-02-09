@@ -1,4 +1,4 @@
-package com.dolotdev.customViews.textInput.action
+package com.dolotdev.customViews.textInputLayout.action
 
 interface TextEventListener {
 	fun onSuccess(message: String?)
