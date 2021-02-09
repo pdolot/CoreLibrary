@@ -31,6 +31,7 @@
     </attr>
 
     <declare-styleable name="TextInputLayout">
+        <attr name="cv_editable" format="boolean"/>
         <attr name="cv_hideRightIconOnRemoveFocus" format="boolean"/>
         <attr name="cv_enableDefaultRightIconBehaviorForInputText" format="boolean"/>
         <attr name="cv_enableDefaultRightIconBehaviorForInputPassword" format="boolean"/>

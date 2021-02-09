@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.text.*
 import android.text.method.PasswordTransformationMethod
@@ -37,25 +38,25 @@ class TextInputLayout @JvmOverloads constructor(
 ) : ViewGroup(context, attrs, defStyleAttr), TextWatcher,
     TextInputEditText.TextInputEditTextListener, TextEventListener {
 
-    private var textInputLayoutType: TextInputLayoutType = TextInputLayoutType.FILLED
-    private var hintBaseline: TextBaseline = TextBaseline.INSIDE
+    internal var textInputLayoutType: TextInputLayoutType = TextInputLayoutType.FILLED
+    internal var hintBaseline: TextBaseline = TextBaseline.INSIDE
 
     // listeners
     private var clickListener: ClickListener? = null
 
     // views
-    private var input: TextInputEditText? = null
-    private var hintTextView: TextView? = null
+    internal var input: TextInputEditText? = null
+    internal var hintTextView: TextView? = null
     private var roundedView: RoundedView = RoundedView(context).apply {
         id = View.generateViewId()
         setPadding(0, 0, 0, 0)
     }
 
-    private var helperTextView: TextView? = null
-    private var letterCounterTextView: TextView? = null
+    internal var helperTextView: TextView? = null
+    internal var letterCounterTextView: TextView? = null
 
-    private var suffixTextView: TextView? = null
-    private var prefixTextView: TextView? = null
+    internal var suffixTextView: TextView? = null
+    internal var prefixTextView: TextView? = null
 
     private var leftIcon: ImageView? = null
     private var rightIcon: ImageView? = null
@@ -75,17 +76,18 @@ class TextInputLayout @JvmOverloads constructor(
     private var letterCounterBound = Bound()
 
     // drawables
-    private var leftIconResId: Int = 0
-    private var rightIconResId: Int = 0
+    internal var leftIconResId: Int = 0
+    internal var rightIconResId: Int = 0
+    internal var leftIconDrawable: Drawable? = null
+    internal var rightIconDrawable: Drawable? = null
 
     // colors
-    private var leftIconColor: Int = 0
-    private var rightIconColor: Int = 0
-    private var activeColor: Int = 0
-    private var inactiveColor: Int = 0
-    private var errorColor: Int = 0
-    private var successColor: Int = 0
-    private var roundedViewStrokeColor: Int = 0
+    internal var leftIconColor: Int = 0
+    internal var rightIconColor: Int = 0
+    internal var activeColor: Int = 0
+    internal var inactiveColor: Int = 0
+    internal var errorColor: Int = 0
+    internal var successColor: Int = 0
 
     // input padding
     private var inputPaddingTop = 0
@@ -94,10 +96,10 @@ class TextInputLayout @JvmOverloads constructor(
     private var inputPaddingEnd = 0
 
     // view inner padding
-    private var innerPaddingTop = 0
-    private var innerPaddingStart = 0
-    private var innerPaddingBottom = 0
-    private var innerPaddingEnd = 0
+    internal var innerPaddingTop = 0
+    internal var innerPaddingStart = 0
+    internal var innerPaddingBottom = 0
+    internal var innerPaddingEnd = 0
 
     // sizes
     private var inputTextViewSize: Size = Size()
@@ -114,8 +116,6 @@ class TextInputLayout @JvmOverloads constructor(
     private var inputTextSize = 0f
     private var hintTextSize = 0f
 
-    private var outlineCornerRadius = 0
-
     // flags
     private val editTextExist: Boolean
         get() = input != null
@@ -123,16 +123,23 @@ class TextInputLayout @JvmOverloads constructor(
     private val bottomTextsEnabled: Boolean
         get() = helperTextView != null || letterCounterTextView != null
 
-    private var helperTextEnabled: Boolean = false
-    private var letterCounterEnabled: Boolean = false
+    private val leftIconExist: Boolean
+        get() = leftIconDrawable != null || leftIconResId != 0
+
+    private val rightIconExist: Boolean
+        get() = rightIconDrawable != null || rightIconResId != 0
+
+    internal var helperTextEnabled: Boolean = false
+    internal var letterCounterEnabled: Boolean = false
 
     private val isHintMinimized
         get() = !input?.text.isNullOrBlank()
 
-    private var hideRightIconOnRemoveFocus = false
-    private var enableDefaultRightIconBehaviorForInputText = false
-    private var enableDefaultRightIconBehaviorForInputPassword = true
+    internal var hideRightIconOnRemoveFocus = false
+    internal var enableDefaultRightIconBehaviorForInputText = false
+    internal var enableDefaultRightIconBehaviorForInputPassword = true
     private var isPasswordVisible = false
+    internal var isEditable = true
 
     // strings
     var hint: String = ""
@@ -147,9 +154,21 @@ class TextInputLayout @JvmOverloads constructor(
         }
         get() = input?.text ?: ""
 
-    private var prefix: String? = null
-    private var suffix: String? = null
-    private var helperText: String? = null
+    var prefix: String? = null
+        set(value) {
+            field = value
+            prefixTextView?.text = value
+        }
+    var suffix: String? = null
+        set(value) {
+            field = value
+            suffixTextView?.text = value
+        }
+    var helperText: String? = null
+        set(value) {
+            field = value
+            helperTextView?.text = value
+        }
 
     // text appearances
     private var hintTextAppearance: Int = 0
@@ -158,18 +177,30 @@ class TextInputLayout @JvmOverloads constructor(
     private var suffixTextAppearance: Int = 0
     private var prefixTextAppearance: Int = 0
 
-    private var inputMaxLength: Int = 0
+    internal var inputMaxLength: Int = 0
     private var inputType: Int = InputType.TYPE_NULL
     private var animationDuration: Long = 200L
 
     private var isViewAnimating = false
 
-    private var viewsVerticalSpace = 2
-    private var viewsHorizontalSpace = 4
+    internal var viewsVerticalSpace = 2
+    internal var viewsHorizontalSpace = 4
 
     private var visibleOnIcon = R.drawable.ic_visibility_on
     private var visibleOffIcon = R.drawable.ic_visibility_off
     private var clearTextIcon = R.drawable.ic_clear_text
+
+    // rounded view attrs
+    internal var borders: Int = 15
+    internal var roundedCorners: Int = 15
+    internal var bgColor: Int = Color.TRANSPARENT
+    internal var strokeColor: Int = Color.BLACK
+    internal var strokeWidth: Float = 3f
+    internal var strokeLineCap: Paint.Cap = Paint.Cap.BUTT
+    internal var strokeLineJoin: Paint.Join = Paint.Join.MITER
+    internal var strokeLineMiter: Float = 4f
+    internal var roundedViewStrokeColor: Int = 0
+    internal var outlineCornerRadius = 0
 
     init {
         val a = context.theme.obtainStyledAttributes(
@@ -180,6 +211,7 @@ class TextInputLayout @JvmOverloads constructor(
         )
 
         hint = a.getString(R.styleable.TextInputLayout_cv_hint) ?: ""
+        isEditable = a.getBoolean(R.styleable.TextInputLayout_cv_editable, true)
 
         leftIconResId = a.getResourceId(R.styleable.TextInputLayout_cv_leftIconDrawable, 0)
         rightIconResId = a.getResourceId(R.styleable.TextInputLayout_cv_rightIconDrawable, 0)
@@ -269,44 +301,50 @@ class TextInputLayout @JvmOverloads constructor(
 
         outlineCornerRadius =
             roundedViewAttrs.getDimensionPixelSize(R.styleable.RoundedView_cv_cornerRadius, 0)
-        roundedView.cornerRadius = outlineCornerRadius.toFloat()
-        roundedView.borders = roundedViewAttrs.getInteger(R.styleable.RoundedView_cv_border, 15)
-        roundedView.roundedCorners =
-            roundedViewAttrs.getInteger(R.styleable.RoundedView_cv_roundedCorners, 15)
+        borders = roundedViewAttrs.getInteger(R.styleable.RoundedView_cv_border, 15)
+        roundedCorners = roundedViewAttrs.getInteger(R.styleable.RoundedView_cv_roundedCorners, 15)
+        bgColor =
+            roundedViewAttrs.getColor(R.styleable.RoundedView_cv_backgroundColor, Color.TRANSPARENT)
+        roundedViewStrokeColor =
+            roundedViewAttrs.getColor(R.styleable.RoundedView_cv_strokeColor, Color.BLACK)
+        strokeColor = roundedViewStrokeColor
+        strokeWidth =
+            roundedViewAttrs.getDimensionPixelSize(R.styleable.RoundedView_cv_strokeWidth, 3)
+                .toFloat()
+        strokeLineCap = Paint.Cap.values()[roundedViewAttrs.getInteger(
+            R.styleable.RoundedView_cv_strokeLineCap,
+            0
+        )]
+        strokeLineJoin = Paint.Join.values()[roundedViewAttrs.getInteger(
+            R.styleable.RoundedView_cv_strokeLineJoin,
+            0
+        )]
+        strokeLineMiter = roundedViewAttrs.getFloat(R.styleable.RoundedView_cv_strokeLineMiter, 4f)
 
-        if (textInputLayoutType == TextInputLayoutType.FILLED_OUTLINE || textInputLayoutType == TextInputLayoutType.FILLED) {
-            roundedView.apply {
-                bgColor = roundedViewAttrs.getColor(
-                    R.styleable.RoundedView_cv_backgroundColor,
-                    Color.TRANSPARENT
-                )
-            }
-        }
-
-        if (textInputLayoutType == TextInputLayoutType.FILLED_OUTLINE || textInputLayoutType == TextInputLayoutType.OUTLINE) {
-            roundedView.apply {
-                roundedViewStrokeColor =
-                    roundedViewAttrs.getColor(R.styleable.RoundedView_cv_strokeColor, Color.BLACK)
-                strokeColor = roundedViewStrokeColor
-                strokeWidth = roundedViewAttrs.getDimensionPixelSize(
-                    R.styleable.RoundedView_cv_strokeWidth,
-                    3
-                ).toFloat()
-                strokeLineCap = Paint.Cap.values()[roundedViewAttrs.getInteger(
-                    R.styleable.RoundedView_cv_strokeLineCap,
-                    0
-                )]
-                strokeLineJoin = Paint.Join.values()[roundedViewAttrs.getInteger(
-                    R.styleable.RoundedView_cv_strokeLineJoin,
-                    0
-                )]
-                strokeLineMiter =
-                    roundedViewAttrs.getFloat(R.styleable.RoundedView_cv_strokeLineMiter, 4f)
-            }
-        }
         roundedViewAttrs.recycle()
         a.recycle()
 
+    }
+
+    @Suppress("unused")
+    fun setLeftIconResId(resId: Int){
+        leftIconResId = resId
+        leftIcon?.setImageResource(resId)
+    }
+    @Suppress("unused")
+    fun setRightIconResId(resId: Int){
+        rightIconResId = resId
+        rightIcon?.setImageResource(resId)
+    }
+    @Suppress("unused")
+    fun setLeftIconDrawable(drawable: Drawable){
+        leftIconDrawable = drawable
+        leftIcon?.setImageDrawable(drawable)
+    }
+    @Suppress("unused")
+    fun setRightIconDrawable(drawable: Drawable){
+        rightIconDrawable = drawable
+        rightIcon?.setImageDrawable(drawable)
     }
 
     private fun moveHint(animation: Boolean) {
@@ -340,7 +378,7 @@ class TextInputLayout @JvmOverloads constructor(
                     }
                 }.start()
 
-            } else if (input?.isFocused == false && input?.text?.toString().isNullOrBlank()) {
+            } else if (input?.isFocused == false && input?.text.isNullOrBlank()) {
                 getAnimator(minTextSize, maxTextSize, 0, 1) {
                     if (hintBaseline == TextBaseline.INLINE) {
                         resetBorderTop()
@@ -354,7 +392,8 @@ class TextInputLayout @JvmOverloads constructor(
     private fun trimBorderTop() {
         if (roundedView.borders == RoundedView.BORDER_ALL || roundedView.borders == RoundedView.BORDER_TOP) {
             val trimStart = hintMinimizedBound.left - outlineCornerRadius - viewsHorizontalSpace
-            val borderLength = roundedViewBound.right - roundedViewBound.left - outlineCornerRadius * 2
+            val borderLength =
+                roundedViewBound.right - roundedViewBound.left - outlineCornerRadius * 2
             val trimEnd = borderLength - (hintMinimizedBound.right - outlineCornerRadius)
             roundedView.isTrimPathTopReversed = true
             roundedView.trimPathStartTop = if (trimStart.toFloat() < 0f) 0f else trimStart.toFloat()
@@ -542,21 +581,27 @@ class TextInputLayout @JvmOverloads constructor(
 
     override fun onSuccess(message: String?) {
         if (helperTextEnabled) {
-            hintTextView?.setTextColor(successColor)
-            helperTextView?.setTextColor(successColor)
+            if (successColor != 0) {
+                hintTextView?.setTextColor(successColor)
+                helperTextView?.setTextColor(successColor)
+                roundedView.strokeColor = successColor
+            }
             if (message != null)
                 helperTextView?.text = message
-            roundedView.strokeColor = successColor
+
         }
     }
 
     override fun onError(message: String?) {
         if (helperTextEnabled) {
-            hintTextView?.setTextColor(errorColor)
-            helperTextView?.setTextColor(errorColor)
+            if (errorColor != 0) {
+                hintTextView?.setTextColor(errorColor)
+                helperTextView?.setTextColor(errorColor)
+                roundedView.strokeColor = errorColor
+            }
+
             if (message != null)
                 helperTextView?.text = message
-            roundedView.strokeColor = errorColor
         }
     }
 
@@ -582,7 +627,7 @@ class TextInputLayout @JvmOverloads constructor(
 
     override fun onSetText(text: String) {
         this.text = text
-        if (enableDefaultRightIconBehaviorForInputText){
+        if (enableDefaultRightIconBehaviorForInputText) {
             if (text.isEmpty())
                 rightIcon?.visibility = View.INVISIBLE
             else
@@ -613,6 +658,7 @@ class TextInputLayout @JvmOverloads constructor(
         this.clickListener = clickListener
     }
 
+    @Suppress("unused")
     inline fun setOnClickListener(
         crossinline onLeftIconClick: () -> Unit,
         crossinline onRightIconClick: () -> Unit
@@ -647,11 +693,24 @@ class TextInputLayout @JvmOverloads constructor(
 
     // set colors
     private fun setActiveColor() {
-        hintTextView?.setTextColor(activeColor)
-        roundedView.strokeColor = activeColor
-        helperTextView?.let {
-            TextViewCompat.setTextAppearance(it, helperTextAppearance)
-            it.text = helperText
+        if (activeColor != 0) {
+            hintTextView?.setTextColor(activeColor)
+            roundedView.strokeColor = activeColor
+            helperTextView?.let {
+                TextViewCompat.setTextAppearance(it, helperTextAppearance)
+                it.text = helperText
+            }
+        }
+    }
+
+    private fun setInactiveColor() {
+        if (inactiveColor != 0) {
+            hintTextView?.setTextColor(inactiveColor)
+            roundedView.strokeColor = inactiveColor
+            roundedView.strokeColor = inactiveColor
+            input?.setTextColor(inactiveColor)
+            helperTextView?.setTextColor(inactiveColor)
+            letterCounterTextView?.setTextColor(inactiveColor)
         }
     }
 
@@ -751,7 +810,7 @@ class TextInputLayout @JvmOverloads constructor(
     }
 
     private fun addLeftIconView() {
-        if (leftIconResId != 0) {
+        if (leftIconExist) {
             if (leftIcon == null) {
                 leftIcon = ImageView(context).apply {
                     id = generateViewId()
@@ -762,7 +821,7 @@ class TextInputLayout @JvmOverloads constructor(
     }
 
     private fun addRightIconView() {
-        if (rightIconResId != 0
+        if (rightIconExist
             || enableDefaultRightIconBehaviorForInputText
             || (enableDefaultRightIconBehaviorForInputPassword && isPasswordInputType())
         ) {
@@ -782,6 +841,7 @@ class TextInputLayout @JvmOverloads constructor(
     // initViews
     private fun initViews() {
         initInput()
+        initRoundedView()
         initInputMaxLength()
         initHintTextView()
         initHelperTextView()
@@ -791,6 +851,9 @@ class TextInputLayout @JvmOverloads constructor(
         initLeftIcon()
         initRightIcon()
         initIconSize()
+
+        if (!isEditable)
+            setInactiveColor()
     }
 
     private fun initInput() {
@@ -798,9 +861,32 @@ class TextInputLayout @JvmOverloads constructor(
             background = null
             if (hintBaseline != TextBaseline.INSIDE)
                 hint = ""
+
+            isFocusable = isEditable
+            isClickable = isEditable
+            isFocusableInTouchMode = isEditable
         }
         input?.setTextInputEditTextListeners(this)
         input?.addTextChangedListener(this)
+    }
+
+    private fun initRoundedView() {
+        roundedView.apply {
+            cornerRadius = outlineCornerRadius.toFloat()
+            borders = this@TextInputLayout.borders
+            roundedCorners = this@TextInputLayout.roundedCorners
+            if (textInputLayoutType == TextInputLayoutType.FILLED || textInputLayoutType == TextInputLayoutType.FILLED_OUTLINE)
+                bgColor = this@TextInputLayout.bgColor
+
+            if (textInputLayoutType == TextInputLayoutType.OUTLINE || textInputLayoutType == TextInputLayoutType.FILLED_OUTLINE) {
+                strokeColor = this@TextInputLayout.roundedViewStrokeColor
+                strokeWidth = this@TextInputLayout.strokeWidth
+                strokeLineCap = this@TextInputLayout.strokeLineCap
+                strokeLineJoin = this@TextInputLayout.strokeLineJoin
+                strokeLineMiter = this@TextInputLayout.strokeLineMiter
+            }
+            roundedCorners = this@TextInputLayout.roundedCorners
+        }
     }
 
     private fun initHintTextView() {
@@ -857,7 +943,7 @@ class TextInputLayout @JvmOverloads constructor(
 
     private fun initLeftIcon() {
         leftIcon?.apply {
-            setImageResource(leftIconResId)
+            leftIconDrawable?.let { setImageDrawable(it) } ?: setImageResource(leftIconResId)
             if (leftIconColor != 0)
                 ImageViewCompat.setImageTintList(this, ColorStateList.valueOf(leftIconColor))
             setOnClickListener {
@@ -873,7 +959,7 @@ class TextInputLayout @JvmOverloads constructor(
             } else if (enableDefaultRightIconBehaviorForInputText) {
                 setImageResource(clearTextIcon)
             } else {
-                setImageResource(rightIconResId)
+                rightIconDrawable?.let { setImageDrawable(it) } ?: setImageResource(rightIconResId)
             }
 
             if (rightIconColor != 0)
@@ -891,18 +977,20 @@ class TextInputLayout @JvmOverloads constructor(
                     changeTransformationMethod()
                     input?.setSelection(input?.text?.length ?: 0)
                 }
-                visibility = if (text.isBlank() || hideRightIconOnRemoveFocus) View.INVISIBLE else View.VISIBLE
+                visibility =
+                    if (text.isBlank() || hideRightIconOnRemoveFocus) View.INVISIBLE else View.VISIBLE
             } else if (enableDefaultRightIconBehaviorForInputText) {
                 setOnClickListener {
                     clickListener?.onRightIconClick()
                     text = ""
-                    if (input?.isFocused == false){
+                    if (input?.isFocused == false) {
                         moveHint(true)
                         visibility = View.INVISIBLE
                     }
                     invalidate()
                 }
-                visibility = if (text.isBlank() || hideRightIconOnRemoveFocus) View.INVISIBLE else View.VISIBLE
+                visibility =
+                    if (text.isBlank() || hideRightIconOnRemoveFocus) View.INVISIBLE else View.VISIBLE
             } else {
                 setOnClickListener {
                     clickListener?.onRightIconClick()
@@ -970,7 +1058,7 @@ class TextInputLayout @JvmOverloads constructor(
     }
 
     private fun measureVerticalLeftIconBound() {
-        if (leftIconResId != 0) {
+        if (leftIconExist) {
             leftIconBound.left = innerViewsBound.left + viewsHorizontalSpace
             leftIconBound.right = leftIconBound.left + iconSize.width
         } else {
@@ -980,7 +1068,7 @@ class TextInputLayout @JvmOverloads constructor(
     }
 
     private fun measureVerticalRightIconBound() {
-        if (rightIconResId != 0) {
+        if (rightIconExist) {
             rightIconBound.right = innerViewsBound.right - viewsHorizontalSpace
             rightIconBound.left = rightIconBound.right - iconSize.width
         } else {
@@ -991,7 +1079,7 @@ class TextInputLayout @JvmOverloads constructor(
 
     private fun measureVerticalPrefixBound() {
         if (prefix != null) {
-            if (leftIconResId != 0) {
+            if (leftIconExist) {
                 prefixBound.left = leftIconBound.right + viewsHorizontalSpace + inputPaddingStart
             } else {
                 prefixBound.left = innerViewsBound.left + viewsHorizontalSpace + inputPaddingStart
@@ -1005,7 +1093,7 @@ class TextInputLayout @JvmOverloads constructor(
 
     private fun measureVerticalSuffixBound() {
         if (suffix != null) {
-            if (rightIconResId != 0) {
+            if (rightIconExist) {
                 suffixBound.right = rightIconBound.left - viewsHorizontalSpace - inputPaddingEnd
             } else {
                 suffixBound.right = innerViewsBound.right - viewsHorizontalSpace - inputPaddingEnd
@@ -1056,21 +1144,21 @@ class TextInputLayout @JvmOverloads constructor(
     }
 
     private fun measureVerticalInputBound() {
-        val left = if (prefix != null && leftIconResId != 0) {
+        val left = if (prefix != null && leftIconExist) {
             prefixBound.right + viewsHorizontalSpace
-        } else if (prefix != null && leftIconResId == 0) {
+        } else if (prefix != null && !leftIconExist) {
             prefixBound.right + viewsHorizontalSpace
-        } else if (prefix == null && leftIconResId != 0) {
+        } else if (prefix == null && leftIconExist) {
             leftIconBound.right + viewsHorizontalSpace
         } else {
             innerViewsBound.left + viewsHorizontalSpace + inputPaddingStart
         }
 
-        val right = if (suffix != null && rightIconResId != 0) {
+        val right = if (suffix != null && rightIconExist) {
             suffixBound.left - viewsHorizontalSpace
-        } else if (suffix != null && rightIconResId == 0) {
+        } else if (suffix != null && !rightIconExist) {
             suffixBound.left - viewsHorizontalSpace
-        } else if (suffix == null && rightIconResId != 0) {
+        } else if (suffix == null && rightIconExist) {
             rightIconBound.left - viewsHorizontalSpace
         } else {
             innerViewsBound.right - viewsHorizontalSpace - inputPaddingEnd
@@ -1165,7 +1253,7 @@ class TextInputLayout @JvmOverloads constructor(
     }
 
     private fun measureHorizontalLeftIconBound() {
-        if (leftIconResId != 0) {
+        if (leftIconExist) {
             if (hintBaseline == TextBaseline.INSIDE) {
                 leftIconBound.top = hintMinimizedBound.bottom + viewsVerticalSpace
             } else {
@@ -1176,7 +1264,7 @@ class TextInputLayout @JvmOverloads constructor(
     }
 
     private fun measureHorizontalRightIconBound() {
-        if (rightIconResId != 0) {
+        if (rightIconExist) {
             if (hintBaseline == TextBaseline.INSIDE) {
                 rightIconBound.top = hintMinimizedBound.bottom + viewsVerticalSpace
             } else {
@@ -1255,5 +1343,294 @@ class TextInputLayout @JvmOverloads constructor(
 
     companion object {
         private val TAG: String = TextInputLayout::class.java.simpleName
+
+        @Suppress("unused")
+        class Builder(
+            private val context: Context,
+            private val input: TextInputEditText,
+            private val textInputLayoutType: TextInputLayoutType,
+            private val hintBaseline: TextBaseline
+        ) {
+
+            private var hintTextView: TextView? = null
+
+            private var helperTextView: TextView? = null
+            private var helperText: String? = null
+            private var helperTextEnabled: Boolean = false
+
+            private var letterCounterTextView: TextView? = null
+            private var letterCounterEnabled: Boolean = false
+            private var inputMaxLength: Int = 0
+
+            private var prefixTextView: TextView? = null
+            private var prefix: String? = null
+
+            private var suffixTextView: TextView? = null
+            private var suffix: String? = null
+
+            private var leftIconResId: Int? = null
+            private var leftIconDrawable: Drawable? = null
+
+            private var rightIconResId: Int? = null
+            private var rightIconDrawable: Drawable? = null
+
+            private var leftIconColor: Int? = null
+            private var rightIconColor: Int? = null
+
+            private var activeColor: Int? = null
+            private var inactiveColor: Int? = null
+            private var errorColor: Int? = null
+            private var successColor: Int? = null
+
+            private var borders: Int? = null
+            private var roundedCorners: Int? = null
+            private var bgColor: Int? = null
+            private var strokeColor: Int? = null
+            private var strokeWidth: Float? = null
+            private var strokeLineCap: Paint.Cap? = null
+            private var strokeLineJoin: Paint.Join? = null
+            private var strokeLineMiter: Float? = null
+            private var roundedViewStrokeColor: Int? = null
+            private var outlineCornerRadius: Int? = null
+
+            private var innerPaddingTop = 0
+            private var innerPaddingStart = 0
+            private var innerPaddingBottom = 0
+            private var innerPaddingEnd = 0
+
+            private var hideRightIconOnRemoveFocus = false
+            private var enableDefaultRightIconBehaviorForInputText = false
+            private var enableDefaultRightIconBehaviorForInputPassword = true
+            private var isEditable = true
+
+            private var hint: String = ""
+            private var text: String = ""
+
+            private var viewsVerticalSpace = 2
+            private var viewsHorizontalSpace = 4
+
+            fun withHint(hint: String, hintTextView: TextView? = null): Builder {
+                if (hintBaseline != TextBaseline.INSIDE)
+                    this.input.hint = hint
+                this.hint = hint
+                this.hintTextView = hintTextView
+                return this
+            }
+
+            fun withHelperText(helperText: String, helperTextView: TextView? = null): Builder {
+                this.helperTextView = helperTextView
+                this.helperTextEnabled = true
+                this.helperText = helperText
+                return this
+            }
+
+            fun withLetterCounterTextView(
+                maxLength: Int,
+                letterCounterTextView: TextView? = null
+            ): Builder {
+                this.inputMaxLength = maxLength
+                this.letterCounterEnabled = true
+                this.letterCounterTextView = letterCounterTextView
+                this.input.filters.toMutableList().apply {
+                    add(InputFilter.LengthFilter(maxLength))
+                }
+                return this
+            }
+
+            fun withPrefix(prefix: String, prefixTextView: TextView? = null): Builder {
+                this.prefix = prefix
+                this.prefixTextView = prefixTextView
+                return this
+            }
+
+            fun withSuffix(suffix: String, suffixTextView: TextView? = null): Builder {
+                this.suffix = suffix
+                this.suffixTextView = suffixTextView
+                return this
+            }
+
+            fun withLeftIconResId(resId: Int, color: Int? = null): Builder {
+                this.leftIconResId = resId
+                color?.let { this.leftIconColor = color }
+                return this
+            }
+
+            fun withLeftIconDrawable(drawable: Drawable, color: Int? = null): Builder {
+                this.leftIconDrawable = drawable
+                color?.let { this.leftIconColor = color }
+                return this
+            }
+
+            fun withRightIconResId(resId: Int, color: Int? = null): Builder {
+                this.rightIconResId = resId
+                color?.let { this.rightIconColor = color }
+                return this
+            }
+
+            fun withRightIconDrawable(drawable: Drawable, color: Int? = null): Builder {
+                this.rightIconDrawable = drawable
+                color?.let { this.rightIconColor = color }
+                return this
+            }
+
+            fun setColors(
+                activeColor: Int? = null, inactiveColor: Int? = null,
+                errorColor: Int? = null, successColor: Int? = null
+            ): Builder {
+                this.activeColor = activeColor
+                this.inactiveColor = inactiveColor
+                this.errorColor = errorColor
+                this.successColor = successColor
+                return this
+            }
+
+            fun setRoundedView(
+                outlineCornerRadius: Int? = null, roundedViewStrokeColor: Int? = null,
+                borders: Int? = null, roundedCorners: Int? = null,
+                bgColor: Int? = null, strokeColor: Int? = null,
+                strokeWidth: Float? = null, strokeLineCap: Paint.Cap? = null,
+                strokeLineJoin: Paint.Join? = null, strokeLineMiter: Float? = null
+            ): Builder {
+                this.outlineCornerRadius = outlineCornerRadius
+                this.roundedViewStrokeColor = roundedViewStrokeColor
+                this.borders = borders
+                this.roundedCorners = roundedCorners
+                this.bgColor = bgColor
+                this.strokeColor = strokeColor
+                this.strokeWidth = strokeWidth
+                this.strokeLineCap = strokeLineCap
+                this.strokeLineJoin = strokeLineJoin
+                this.strokeLineMiter = strokeLineMiter
+                return this
+            }
+
+            fun addInnerPadding(left: Int, top: Int, right: Int, bottom: Int): Builder {
+                this.innerPaddingStart = left
+                this.innerPaddingTop = top
+                this.innerPaddingEnd = right
+                this.innerPaddingBottom = bottom
+                return this
+            }
+
+            fun addInnerPadding(padding: Int): Builder {
+                this.innerPaddingStart = padding
+                this.innerPaddingTop = padding
+                this.innerPaddingEnd = padding
+                this.innerPaddingBottom = padding
+                return this
+            }
+
+            fun hideRightIconOnRemoveFocus(): Builder {
+                hideRightIconOnRemoveFocus = true
+                return this
+            }
+
+            fun enableDefaultRightIconBehaviorForInputText(): Builder {
+                enableDefaultRightIconBehaviorForInputText = true
+                return this
+            }
+
+            fun disableDefaultRightIconBehaviorForInputText(): Builder {
+                enableDefaultRightIconBehaviorForInputText = false
+                return this
+            }
+
+            fun enableDefaultRightIconBehaviorForInputPassword(): Builder {
+                enableDefaultRightIconBehaviorForInputPassword = true
+                return this
+            }
+
+            fun disableDefaultRightIconBehaviorForInputPassword(): Builder {
+                enableDefaultRightIconBehaviorForInputPassword = false
+                return this
+            }
+
+            fun withText(text: String): Builder {
+                this.text = text
+                this.input.text = text
+                return this
+            }
+
+            fun asStatic(): Builder {
+                this.isEditable = false
+                return this
+            }
+
+            fun setViewsVerticalSpace(space: Int): Builder {
+                this.viewsVerticalSpace = space
+                return this
+            }
+
+            fun setViewsHorizontalSpace(space: Int): Builder {
+                this.viewsHorizontalSpace = space
+                return this
+            }
+
+            fun build(): TextInputLayout {
+                return TextInputLayout(context).apply {
+                    this.input = this@Builder.input
+                    this.text = this@Builder.text
+                    this.isEditable = this@Builder.isEditable
+
+                    this.textInputLayoutType = this@Builder.textInputLayoutType
+                    this.hintBaseline = this@Builder.hintBaseline
+
+                    this.hintTextView = this@Builder.hintTextView
+                    this.hint = this@Builder.hint
+
+                    this.helperTextView = this@Builder.helperTextView
+                    this.helperText = this@Builder.helperText
+                    this.helperTextEnabled = this@Builder.helperTextEnabled
+
+                    this.letterCounterTextView = this@Builder.letterCounterTextView
+                    this.letterCounterEnabled = this@Builder.letterCounterEnabled
+                    this.inputMaxLength = this@Builder.inputMaxLength
+
+                    this.prefixTextView = this@Builder.prefixTextView
+                    this.prefix = this@Builder.prefix
+
+                    this.suffixTextView = this@Builder.suffixTextView
+                    this.suffix = this@Builder.suffix
+
+                    this@Builder.leftIconResId?.let { this.leftIconResId = it }
+                    this@Builder.leftIconDrawable?.let { this.leftIconDrawable = it }
+                    this@Builder.rightIconResId?.let { this.rightIconResId = it }
+                    this@Builder.rightIconDrawable?.let { this.rightIconDrawable = it }
+                    this@Builder.leftIconColor?.let { this.leftIconColor = it }
+                    this@Builder.rightIconColor?.let { this.rightIconColor = it }
+
+                    this@Builder.activeColor?.let { this.activeColor = it }
+                    this@Builder.inactiveColor?.let { this.inactiveColor = it }
+                    this@Builder.errorColor?.let { this.errorColor = it }
+                    this@Builder.successColor?.let { this.successColor = it }
+
+                    this@Builder.borders?.let { this.borders = it }
+                    this@Builder.roundedCorners?.let { this.roundedCorners = it }
+                    this@Builder.bgColor?.let { this.bgColor = it }
+                    this@Builder.strokeColor?.let { this.strokeColor = it }
+                    this@Builder.strokeWidth?.let { this.strokeWidth = it }
+                    this@Builder.strokeLineCap?.let { this.strokeLineCap = it }
+                    this@Builder.strokeLineJoin?.let { this.strokeLineJoin = it }
+                    this@Builder.strokeLineMiter?.let { this.strokeLineMiter = it }
+                    this@Builder.roundedViewStrokeColor?.let { this.roundedViewStrokeColor = it }
+                    this@Builder.outlineCornerRadius?.let { this.outlineCornerRadius = it }
+
+
+                    this.innerPaddingTop = this@Builder.innerPaddingTop
+                    this.innerPaddingStart = this@Builder.innerPaddingStart
+                    this.innerPaddingBottom = this@Builder.innerPaddingBottom
+                    this.innerPaddingEnd = this@Builder.innerPaddingEnd
+
+                    this.hideRightIconOnRemoveFocus = this@Builder.hideRightIconOnRemoveFocus
+                    this.enableDefaultRightIconBehaviorForInputText =
+                        this@Builder.enableDefaultRightIconBehaviorForInputText
+                    this.enableDefaultRightIconBehaviorForInputPassword =
+                        this@Builder.enableDefaultRightIconBehaviorForInputPassword
+
+                    this.viewsVerticalSpace = this@Builder.viewsVerticalSpace
+                    this.viewsHorizontalSpace = this@Builder.viewsHorizontalSpace
+                }
+            }
+        }
     }
 }
