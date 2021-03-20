@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextInputLayoutStyle">
+        <item name="cv_inputLayoutType">outline</item>
+        <item name="cv_cornerRadius">8dp</item>
+        <item name="cv_roundedCorners">all</item>
+        <item name="cv_border">all</item>
+        <item name="cv_hintBaseline">inline</item>
+        <item name="cv_viewsHorizontalSpace">4dp</item>
+        <item name="cv_viewsVerticalSpace">2dp</item>
+        <item name="cv_innerPaddingTop">4dp</item>
+        <item name="cv_innerPaddingEnd">4dp</item>
+        <item name="cv_innerPaddingStart">4dp</item>
+        <item name="cv_innerPaddingBottom">4dp</item>
+        <item name="cv_letterCounterEnabled">false</item>
+        <item name="cv_helperTextEnabled">false</item>
+        <item name="cv_strokeLineCap">round</item>
+        <item name="cv_strokeLineJoin">round</item>
+        <item name="cv_errorColor">#E53935</item>
+        <item name="cv_successColor">#43A047</item>
+        <item name="cv_activeColor">@color/design_default_color_primary</item>
+        <item name="cv_inactiveColor">#353535</item>
+        <item name="cv_strokeColor">#121212</item>
+        <item name="cv_strokeWidth">2dp</item>
+        <item name="cv_leftIconColor">#121212</item>
+        <item name="cv_rightIconColor">#121212</item>
+    </style>
+    <style name="HintTextAppearance">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">#353535</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="PrefixTextAppearance">
+        <item name="android:textColor">#797979</item>
+        <item name="maxLines">1</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+    <style name="SuffixTextAppearance">
+        <item name="android:textColor">#797979</item>
+        <item name="maxLines">1</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+    <style name="LetterCountTextAppearance">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">#353535</item>
+        <item name="android:textAlignment">textEnd</item>
+    </style>
+    <style name="HelperTextAppearance">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">#353535</item>
+    </style>
+</resources>

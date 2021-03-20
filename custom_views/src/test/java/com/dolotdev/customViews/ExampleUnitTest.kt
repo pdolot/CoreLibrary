@@ -1,4 +1,4 @@
-package com.dolotdev.custom_views
+package com.dolotdev.customViews
 
 import org.junit.Test
 

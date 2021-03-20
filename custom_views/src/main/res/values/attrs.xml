@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="cv_backgroundColor" format="color"/>
+    <attr name="cv_strokeColor" format="color"/>
+    <attr name="cv_strokeWidth" format="dimension"/>
+    <attr name="cv_strokeLineCap" format="enum">
+        <enum name="butt" value="0"/>
+        <enum name="round" value="1"/>
+        <enum name="square" value="2"/>
+    </attr>
+    <attr name="cv_strokeLineJoin" format="enum">
+        <enum name="miter" value="0"/>
+        <enum name="round" value="1"/>
+        <enum name="bevel" value="2"/>
+    </attr>
+    <attr name="cv_strokeLineMiter" format="float"/>
+    <attr name="cv_cornerRadius" format="dimension"/>
+    <attr name="cv_roundedCorners" format="flags">
+        <flag name="topLeft" value="1" />
+        <flag name="topRight" value="2" />
+        <flag name="bottomRight" value="4" />
+        <flag name="bottomLeft" value="8" />
+        <flag name="all" value="15" />
+    </attr>
+    <attr name="cv_border" format="flags">
+        <flag name="left" value="1" />
+        <flag name="top" value="2" />
+        <flag name="right" value="4" />
+        <flag name="bottom" value="8" />
+        <flag name="all" value="15" />
+    </attr>
+
+    <declare-styleable name="TextInputLayout">
+        <attr name="cv_editable" format="boolean"/>
+        <attr name="cv_hideRightIconOnRemoveFocus" format="boolean"/>
+        <attr name="cv_enableDefaultRightIconBehaviorForInputText" format="boolean"/>
+        <attr name="cv_enableDefaultRightIconBehaviorForInputPassword" format="boolean"/>
+        <attr name="cv_hint" format="string"/>
+        <attr name="cv_activeColor" format="color"/>
+        <attr name="cv_inactiveColor" format="color"/>
+        <attr name="cv_errorColor" format="color"/>
+        <attr name="cv_successColor" format="color"/>
+        <attr name="cv_viewsHorizontalSpace" format="dimension"/>
+        <attr name="cv_viewsVerticalSpace" format="dimension"/>
+        <attr name="cv_innerPaddingTop" format="dimension"/>
+        <attr name="cv_innerPaddingBottom" format="dimension"/>
+        <attr name="cv_innerPaddingStart" format="dimension"/>
+        <attr name="cv_innerPaddingEnd" format="dimension"/>
+        <attr name="cv_leftIconDrawable" format="reference"/>
+        <attr name="cv_rightIconDrawable" format="reference"/>
+        <attr name="cv_leftIconColor" format="color"/>
+        <attr name="cv_rightIconColor" format="color"/>
+        <attr name="cv_prefix" format="string"/>
+        <attr name="cv_suffix" format="string"/>
+        <attr name="cv_helperText" format="string"/>
+        <attr name="cv_letterCounterEnabled" format="boolean"/>
+        <attr name="cv_helperTextEnabled" format="boolean"/>
+        <attr name="cv_hintTextAppearance" format="reference"/>
+        <attr name="cv_letterCountTextAppearance" format="reference"/>
+        <attr name="cv_helperTextAppearance" format="reference"/>
+        <attr name="cv_prefixTextAppearance" format="reference"/>
+        <attr name="cv_suffixTextAppearance" format="reference"/>
+        <attr name="cv_inputLayoutType" format="enum">
+            <enum name="filled" value="0"/>
+            <enum name="outline" value="1"/>
+            <enum name="filled_outline" value="2"/>
+        </attr>
+        <attr name="cv_hintBaseline" format="enum">
+            <enum name="outside" value="0"/>
+            <enum name="inline" value="1"/>
+            <enum name="inside" value="2"/>
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="RoundedView">
+        <attr name="cv_backgroundColor"/>
+        <attr name="cv_strokeColor"/>
+        <attr name="cv_strokeWidth"/>
+        <attr name="cv_strokeLineCap"/>
+        <attr name="cv_strokeLineJoin"/>
+        <attr name="cv_strokeLineMiter"/>
+        <attr name="cv_cornerRadius"/>
+        <attr name="cv_roundedCorners"/>
+        <attr name="cv_border"/>
+        <attr name="cv_trimPathStart_top" format="dimension"/>
+        <attr name="cv_trimPathStartPercent_top" format="float"/>
+        <attr name="cv_trimPathEnd_top" format="dimension"/>
+        <attr name="cv_trimPathEndPercent_top" format="float"/>
+        <attr name="cv_trimPathReverse_top" format="boolean"/>
+        <attr name="cv_trimPathMode_top" format="enum">
+            <enum name="dimen" value="0"/>
+            <enum name="percent" value="1"/>
+        </attr>
+        <attr name="cv_trimPathStart_left" format="dimension"/>
+        <attr name="cv_trimPathStartPercent_left" format="float"/>
+        <attr name="cv_trimPathEnd_left" format="dimension"/>
+        <attr name="cv_trimPathEndPercent_left" format="float"/>
+        <attr name="cv_trimPathReverse_left" format="boolean"/>
+        <attr name="cv_trimPathMode_left" format="enum">
+            <enum name="dimen" value="0"/>
+            <enum name="percent" value="1"/>
+        </attr>
+        <attr name="cv_trimPathStart_right" format="dimension"/>
+        <attr name="cv_trimPathStartPercent_right" format="float"/>
+        <attr name="cv_trimPathEnd_right" format="dimension"/>
+        <attr name="cv_trimPathEndPercent_right" format="float"/>
+        <attr name="cv_trimPathReverse_right" format="boolean"/>
+        <attr name="cv_trimPathMode_right" format="enum">
+            <enum name="dimen" value="0"/>
+            <enum name="percent" value="1"/>
+        </attr>
+        <attr name="cv_trimPathStart_bottom" format="dimension"/>
+        <attr name="cv_trimPathStartPercent_bottom" format="float"/>
+        <attr name="cv_trimPathEnd_bottom" format="dimension"/>
+        <attr name="cv_trimPathEndPercent_bottom" format="float"/>
+        <attr name="cv_trimPathReverse_bottom" format="boolean"/>
+        <attr name="cv_trimPathMode_bottom" format="enum">
+            <enum name="dimen" value="0"/>
+            <enum name="percent" value="1"/>
+        </attr>
+    </declare-styleable>
+</resources>
