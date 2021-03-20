@@ -5,18 +5,11 @@ import android.graphics.Rect
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatEditText
 
-open class TextInputEditText @JvmOverloads constructor(
+class TextInputEditText @JvmOverloads constructor(
 	context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = android.R.attr.editTextStyle
 ) : AppCompatEditText(context, attrs, defStyleAttr) {
 
     private var textInputEditTextListeners: TextInputEditTextListener? = null
-
-    var text: String = ""
-        set(value) {
-            field = value
-            textInputEditTextListeners?.onSetText(value) ?: super.setText(text)
-        }
-        get() = this.getText()?.toString() ?: ""
 
     var hint: String = ""
         set(value) {
@@ -26,6 +19,12 @@ open class TextInputEditText @JvmOverloads constructor(
             }
         }
         get() = this.getHint()?.toString() ?: ""
+
+
+    init {
+        setPadding(paddingLeft / 3, paddingTop / 3, paddingRight / 3, paddingBottom / 3)
+    }
+
 
     internal fun setTextInputEditTextListeners(textInputEditTextListener: TextInputEditTextListener) {
         this.textInputEditTextListeners = textInputEditTextListener
@@ -38,7 +37,6 @@ open class TextInputEditText @JvmOverloads constructor(
 
     internal interface TextInputEditTextListener {
         fun onFocusChanged(focused: Boolean)
-        fun onSetText(text: String)
         fun onSetHint(hint: String)
     }
 

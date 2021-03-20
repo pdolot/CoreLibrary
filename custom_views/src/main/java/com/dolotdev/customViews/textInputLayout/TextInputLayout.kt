@@ -67,6 +67,7 @@ class TextInputLayout @JvmOverloads constructor(
     private var innerViewsBound = Bound()
     private var inputBound = Bound()
     private var hintBound = Bound()
+    private var hintWrappedBound = Bound()
     private var hintMinimizedBound = Bound()
     private var suffixBound = Bound()
     private var prefixBound = Bound()
@@ -147,12 +148,8 @@ class TextInputLayout @JvmOverloads constructor(
             field = value
             hintTextView?.text = field
         }
-    var text: String = ""
-        set(value) {
-            field = value
-            input?.setText(field)
-        }
-        get() = input?.text ?: ""
+    val text: String
+        get() = input?.text?.toString() ?: ""
 
     var prefix: String? = null
         set(value) {
@@ -203,6 +200,11 @@ class TextInputLayout @JvmOverloads constructor(
     internal var outlineCornerRadius = 0
 
     init {
+        if (attrs != null)
+            initAttrs(context, attrs, defStyleAttr)
+    }
+
+    private fun initAttrs(context: Context, attrs: AttributeSet?, defStyleAttr: Int) {
         val a = context.theme.obtainStyledAttributes(
             attrs,
             R.styleable.TextInputLayout,
@@ -323,26 +325,34 @@ class TextInputLayout @JvmOverloads constructor(
 
         roundedViewAttrs.recycle()
         a.recycle()
-
     }
 
     @Suppress("unused")
-    fun setLeftIconResId(resId: Int){
+    fun setText(value: Any) {
+        val stringValue = value.toString()
+        input?.setText(stringValue)
+    }
+
+    @Suppress("unused")
+    fun setLeftIconResId(resId: Int) {
         leftIconResId = resId
         leftIcon?.setImageResource(resId)
     }
+
     @Suppress("unused")
-    fun setRightIconResId(resId: Int){
+    fun setRightIconResId(resId: Int) {
         rightIconResId = resId
         rightIcon?.setImageResource(resId)
     }
+
     @Suppress("unused")
-    fun setLeftIconDrawable(drawable: Drawable){
+    fun setLeftIconDrawable(drawable: Drawable) {
         leftIconDrawable = drawable
         leftIcon?.setImageDrawable(drawable)
     }
+
     @Suppress("unused")
-    fun setRightIconDrawable(drawable: Drawable){
+    fun setRightIconDrawable(drawable: Drawable) {
         rightIconDrawable = drawable
         rightIcon?.setImageDrawable(drawable)
     }
@@ -391,10 +401,10 @@ class TextInputLayout @JvmOverloads constructor(
 
     private fun trimBorderTop() {
         if (roundedView.borders == RoundedView.BORDER_ALL || roundedView.borders == RoundedView.BORDER_TOP) {
-            val trimStart = hintMinimizedBound.left - outlineCornerRadius - viewsHorizontalSpace
+            val trimStart = hintWrappedBound.left - outlineCornerRadius - viewsHorizontalSpace
             val borderLength =
                 roundedViewBound.right - roundedViewBound.left - outlineCornerRadius * 2
-            val trimEnd = borderLength - (hintMinimizedBound.right - outlineCornerRadius)
+            val trimEnd = borderLength - (hintWrappedBound.right - outlineCornerRadius)
             roundedView.isTrimPathTopReversed = true
             roundedView.trimPathStartTop = if (trimStart.toFloat() < 0f) 0f else trimStart.toFloat()
             roundedView.trimPathEndTop =
@@ -514,43 +524,39 @@ class TextInputLayout @JvmOverloads constructor(
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        Log.v(TAG, "onMeasure")
-
         measureVerticalBounds()
         if (isHeightWrapContent()) {
             var newHeightMeasureSpec = heightMeasureSpec
-            if (isHeightWrapContent()) {
-                var height = paddingTop
-                when (hintBaseline) {
-                    TextBaseline.OUTSIDE, TextBaseline.INSIDE -> {
-                        height += minHintTextViewSize.height
-                        height += viewsVerticalSpace
-                        height += outlineCornerRadius
-                        height += outlineCornerRadius
-                    }
-                    TextBaseline.INLINE -> {
-                        height += minHintTextViewSize.height / 2
-                        height += max(outlineCornerRadius, minHintTextViewSize.height / 2)
-                        height += max(outlineCornerRadius, minHintTextViewSize.height / 2)
-                    }
-                }
-
-                height += innerPaddingTop
-                height += viewsVerticalSpace
-                height += inputPaddingTop
-                height += inputTextViewSize.height
-                height += inputPaddingBottom
-                height += viewsVerticalSpace
-                height += innerPaddingBottom
-
-                if (helperTextEnabled || letterCounterEnabled) {
+            var height = paddingTop
+            when (hintBaseline) {
+                TextBaseline.OUTSIDE, TextBaseline.INSIDE -> {
+                    height += minHintTextViewSize.height
                     height += viewsVerticalSpace
-                    height += max(helperTextViewSize.height, letterCounterTextViewSize.height)
+                    height += outlineCornerRadius
+                    height += outlineCornerRadius
                 }
-                height += paddingBottom
-
-                newHeightMeasureSpec = MeasureSpec.EXACTLY + height
+                TextBaseline.INLINE -> {
+                    height += minHintTextViewSize.height / 2
+                    height += max(outlineCornerRadius, minHintTextViewSize.height / 2)
+                    height += max(outlineCornerRadius, minHintTextViewSize.height / 2)
+                }
             }
+
+            height += innerPaddingTop
+            height += viewsVerticalSpace
+            height += inputPaddingTop
+            height += inputTextViewSize.height
+            height += inputPaddingBottom
+            height += viewsVerticalSpace
+            height += innerPaddingBottom
+
+            if (helperTextEnabled || letterCounterEnabled) {
+                height += viewsVerticalSpace
+                height += max(helperTextViewSize.height, letterCounterTextViewSize.height)
+            }
+            height += paddingBottom
+
+            newHeightMeasureSpec = MeasureSpec.EXACTLY + height
 
             setMeasuredDimension(widthMeasureSpec, newHeightMeasureSpec)
         }
@@ -622,16 +628,6 @@ class TextInputLayout @JvmOverloads constructor(
             }
             if (hideRightIconOnRemoveFocus)
                 rightIcon?.visibility = View.INVISIBLE
-        }
-    }
-
-    override fun onSetText(text: String) {
-        this.text = text
-        if (enableDefaultRightIconBehaviorForInputText) {
-            if (text.isEmpty())
-                rightIcon?.visibility = View.INVISIBLE
-            else
-                rightIcon?.visibility = View.VISIBLE
         }
     }
 
@@ -726,11 +722,6 @@ class TextInputLayout @JvmOverloads constructor(
     // addViews
 
     private fun addInputView() {
-        input?.apply {
-            if (hintBaseline != TextBaseline.INSIDE || this@TextInputLayout.hint.isEmpty())
-                this@TextInputLayout.hint = input?.hint ?: ""
-            inputTextSize = pxToSp(context, textSize)
-        }
         addView(input)
     }
 
@@ -738,12 +729,6 @@ class TextInputLayout @JvmOverloads constructor(
         if (hintTextView == null) {
             hintTextView = TextView(context).apply {
                 id = View.generateViewId()
-                TextViewCompat.setTextAppearance(this, hintTextAppearance)
-                setPadding(0, 0, 0, 0)
-                input?.includeFontPadding?.let { includeFontPadding = it }
-                maxLines = 1
-                ellipsize = TextUtils.TruncateAt.END
-                hintTextSize = pxToSp(context, textSize)
             }
         }
         addView(hintTextView)
@@ -754,8 +739,6 @@ class TextInputLayout @JvmOverloads constructor(
             if (helperTextView == null) {
                 helperTextView = TextView(context).apply {
                     id = View.generateViewId()
-                    TextViewCompat.setTextAppearance(this, helperTextAppearance)
-                    setPadding(0, 0, 0, 0)
                 }
             }
             addView(helperTextView)
@@ -767,10 +750,6 @@ class TextInputLayout @JvmOverloads constructor(
             if (letterCounterTextView == null) {
                 letterCounterTextView = TextView(context).apply {
                     id = View.generateViewId()
-                    TextViewCompat.setTextAppearance(this, letterCounterTextAppearance)
-                    setPadding(0, 0, 0, 0)
-                    gravity = Gravity.END
-                    textAlignment = TEXT_ALIGNMENT_TEXT_END
                 }
             }
             addView(letterCounterTextView)
@@ -782,11 +761,6 @@ class TextInputLayout @JvmOverloads constructor(
             if (prefixTextView == null) {
                 prefixTextView = TextView(context).apply {
                     id = View.generateViewId()
-                    TextViewCompat.setTextAppearance(this, prefixTextAppearance)
-                    setPadding(0, 0, 0, 0)
-                    includeFontPadding = input?.includeFontPadding ?: true
-                    gravity = input?.gravity ?: Gravity.START
-                    maxLines = 1
                 }
             }
             addView(prefixTextView)
@@ -798,11 +772,6 @@ class TextInputLayout @JvmOverloads constructor(
             if (suffixTextView == null) {
                 suffixTextView = TextView(context).apply {
                     id = View.generateViewId()
-                    TextViewCompat.setTextAppearance(this, prefixTextAppearance)
-                    setPadding(0, 0, 0, 0)
-                    includeFontPadding = input?.includeFontPadding ?: true
-                    gravity = input?.gravity ?: Gravity.END
-                    maxLines = 1
                 }
             }
             addView(suffixTextView)
@@ -858,6 +827,9 @@ class TextInputLayout @JvmOverloads constructor(
 
     private fun initInput() {
         input?.apply {
+            if (hintBaseline != TextBaseline.INSIDE || this@TextInputLayout.hint.isEmpty())
+                this@TextInputLayout.hint = input?.hint ?: ""
+            inputTextSize = pxToSp(context, textSize)
             background = null
             if (hintBaseline != TextBaseline.INSIDE)
                 hint = ""
@@ -891,6 +863,13 @@ class TextInputLayout @JvmOverloads constructor(
 
     private fun initHintTextView() {
         hintTextView?.apply {
+            if (hintTextAppearance != 0)
+                TextViewCompat.setTextAppearance(this, hintTextAppearance)
+            setPadding(0, 0, 0, 0)
+            input?.includeFontPadding?.let { includeFontPadding = it }
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
+            hintTextSize = pxToSp(context, textSize)
             text = this@TextInputLayout.hint
             minHintTextViewSize = getTextViewSize(hintTextView, hintTextSize)
             hintTextViewSize = getTextViewSize(hintTextView, inputTextSize)
@@ -900,6 +879,9 @@ class TextInputLayout @JvmOverloads constructor(
 
     private fun initHelperTextView() {
         helperTextView?.apply {
+            if (helperTextAppearance != 0)
+                TextViewCompat.setTextAppearance(this, helperTextAppearance)
+            setPadding(0, 0, 0, 0)
             text = helperText
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
             helperTextViewSize = getTextViewSize(helperTextView, pxToSp(context, this.textSize))
@@ -913,6 +895,11 @@ class TextInputLayout @JvmOverloads constructor(
                 letterCounterEnabled = false
             } else {
                 it.apply {
+                    if (letterCounterTextAppearance != 0)
+                        TextViewCompat.setTextAppearance(this, letterCounterTextAppearance)
+                    setPadding(0, 0, 0, 0)
+                    gravity = Gravity.END
+                    textAlignment = TEXT_ALIGNMENT_TEXT_END
                     updateLetterCounter(this@TextInputLayout.text)
                     layoutParams =
                         LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
@@ -925,6 +912,12 @@ class TextInputLayout @JvmOverloads constructor(
 
     private fun initPrefixTextView() {
         prefixTextView?.apply {
+            if (prefixTextAppearance != 0)
+                TextViewCompat.setTextAppearance(this, prefixTextAppearance)
+            setPadding(0, 0, 0, 0)
+            includeFontPadding = input?.includeFontPadding ?: true
+            gravity = input?.gravity ?: Gravity.START
+            maxLines = 1
             textSize = inputTextSize
             text = prefix
             layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
@@ -934,6 +927,12 @@ class TextInputLayout @JvmOverloads constructor(
 
     private fun initSuffixTextView() {
         suffixTextView?.apply {
+            if (suffixTextAppearance != 0)
+                TextViewCompat.setTextAppearance(this, suffixTextAppearance)
+            setPadding(0, 0, 0, 0)
+            includeFontPadding = input?.includeFontPadding ?: true
+            gravity = input?.gravity ?: Gravity.END
+            maxLines = 1
             textSize = inputTextSize
             text = suffix
             layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
@@ -982,7 +981,7 @@ class TextInputLayout @JvmOverloads constructor(
             } else if (enableDefaultRightIconBehaviorForInputText) {
                 setOnClickListener {
                     clickListener?.onRightIconClick()
-                    text = ""
+                    input?.setText("")
                     if (input?.isFocused == false) {
                         moveHint(true)
                         visibility = View.INVISIBLE
@@ -1054,7 +1053,10 @@ class TextInputLayout @JvmOverloads constructor(
         val measuredLeft =
             hintMinimizedBound.left + minHintTextViewSize.width + viewsHorizontalSpace
 
-        hintMinimizedBound.right = min(measuredLeft, measuredMaxLeft)
+        hintMinimizedBound.right = measuredMaxLeft
+
+        hintWrappedBound.left = hintMinimizedBound.left
+        hintWrappedBound.right = min(measuredLeft, measuredMaxLeft)
     }
 
     private fun measureVerticalLeftIconBound() {
@@ -1250,6 +1252,8 @@ class TextInputLayout @JvmOverloads constructor(
             }
         }
         hintMinimizedBound.bottom = hintMinimizedBound.top + minHintTextViewSize.height
+        hintWrappedBound.top = hintMinimizedBound.top
+        hintWrappedBound.bottom = hintMinimizedBound.bottom
     }
 
     private fun measureHorizontalLeftIconBound() {
@@ -1404,14 +1408,12 @@ class TextInputLayout @JvmOverloads constructor(
             private var isEditable = true
 
             private var hint: String = ""
-            private var text: String = ""
 
-            private var viewsVerticalSpace = 2
-            private var viewsHorizontalSpace = 4
+            private var viewsVerticalSpace: Int? = null
+            private var viewsHorizontalSpace: Int? = null
 
             fun withHint(hint: String, hintTextView: TextView? = null): Builder {
-                if (hintBaseline != TextBaseline.INSIDE)
-                    this.input.hint = hint
+                this.input.hint = hint
                 this.hint = hint
                 this.hintTextView = hintTextView
                 return this
@@ -1546,8 +1548,7 @@ class TextInputLayout @JvmOverloads constructor(
             }
 
             fun withText(text: String): Builder {
-                this.text = text
-                this.input.text = text
+                this.input.setText(text)
                 return this
             }
 
@@ -1569,7 +1570,6 @@ class TextInputLayout @JvmOverloads constructor(
             fun build(): TextInputLayout {
                 return TextInputLayout(context).apply {
                     this.input = this@Builder.input
-                    this.text = this@Builder.text
                     this.isEditable = this@Builder.isEditable
 
                     this.textInputLayoutType = this@Builder.textInputLayoutType
@@ -1627,8 +1627,8 @@ class TextInputLayout @JvmOverloads constructor(
                     this.enableDefaultRightIconBehaviorForInputPassword =
                         this@Builder.enableDefaultRightIconBehaviorForInputPassword
 
-                    this.viewsVerticalSpace = this@Builder.viewsVerticalSpace
-                    this.viewsHorizontalSpace = this@Builder.viewsHorizontalSpace
+                    this@Builder.viewsVerticalSpace?.let { this.viewsVerticalSpace = it }
+                    this@Builder.viewsHorizontalSpace?.let { this.viewsHorizontalSpace = it }
                 }
             }
         }
