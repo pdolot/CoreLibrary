@@ -30,6 +30,44 @@
         <flag name="all" value="15" />
     </attr>
 
+    <attr name="cv_includeShadowPadding" format="flags">
+        <flag name="left" value="1" />
+        <flag name="top" value="2" />
+        <flag name="right" value="4" />
+        <flag name="bottom" value="8" />
+        <flag name="all" value="15" />
+    </attr>
+
+    <attr name="cv_shadowColor" format="color"/>
+    <attr name="cv_shadowRadius" format="dimension"/>
+    <attr name="cv_shadowDx" format="integer"/>
+    <attr name="cv_shadowDy" format="integer"/>
+
+    <declare-styleable name="SimpleRoundedView">
+        <attr name="cv_shadowColor"/>
+        <attr name="cv_shadowRadius"/>
+        <attr name="cv_shadowDx"/>
+        <attr name="cv_shadowDy"/>
+        <attr name="cv_backgroundColor"/>
+        <attr name="cv_strokeColor"/>
+        <attr name="cv_strokeWidth"/>
+        <attr name="cv_cornerRadius"/>
+        <attr name="cv_roundedCorners"/>
+        <attr name="cv_includeShadowPadding"/>
+    </declare-styleable>
+
+    <declare-styleable name="ShadowConstraintLayout">
+        <attr name="cv_shadowColor"/>
+        <attr name="cv_shadowRadius"/>
+        <attr name="cv_shadowDx"/>
+        <attr name="cv_shadowDy"/>
+        <attr name="cv_backgroundColor"/>
+        <attr name="cv_strokeColor"/>
+        <attr name="cv_strokeWidth"/>
+        <attr name="cv_cornerRadius"/>
+        <attr name="cv_roundedCorners"/>
+    </declare-styleable>
+
     <declare-styleable name="TextInputLayout">
         <attr name="cv_editable" format="boolean"/>
         <attr name="cv_hideRightIconOnRemoveFocus" format="boolean"/>
